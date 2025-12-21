@@ -6,7 +6,7 @@ Desafio prático para a empresa Outsera. Este repositório contém a implementa�
 
 - **IDE:** IntelliJ IDEA 2025
 - **Java:** 21
-- **Spring Boot:** 4.0.0
+- **Spring Boot:** 3.4.1
 - **Banco de dados:** H2 (em memória)
 
 ## Como rodar o projeto
@@ -30,7 +30,13 @@ Com a aplicação rodando, acesse o console do H2:
 ## Endpoints
 
 ```
+GET http://localhost:8081/api/intervals             → Retorna os intervalos de prêmios dos produtores
 GET http://localhost:8081/api/movies                → Lista todos os filmes
 GET http://localhost:8081/api/movies?winner=true    → Lista apenas os filmes vencedores
-GET http://localhost:8081/api/awards/intervals      → Retorna os intervalos de prêmios dos produtores
+```
+
+## Como rodar os testes de integração
+
+```bash
+./gradlew test
 ```

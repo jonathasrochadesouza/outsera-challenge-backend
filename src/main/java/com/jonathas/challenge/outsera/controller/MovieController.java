@@ -1,6 +1,6 @@
 package com.jonathas.challenge.outsera.controller;
 
-import com.jonathas.challenge.outsera.model.dto.AwardIntervalResponseDTO;
+import com.jonathas.challenge.outsera.model.dto.IntervalsResponseDTO;
 import com.jonathas.challenge.outsera.model.dto.MovieDTO;
 import com.jonathas.challenge.outsera.service.MovieService;
 import org.springframework.http.ResponseEntity;
@@ -28,9 +28,9 @@ public class MovieController {
         return ResponseEntity.ok(movies);
     }
 
-    @GetMapping("/awards/intervals")
-    public ResponseEntity<AwardIntervalResponseDTO> getIntervals() {
-        AwardIntervalResponseDTO response = movieService.getProducerIntervals();
+    @GetMapping("/intervals")
+    public ResponseEntity<IntervalsResponseDTO> getIntervals() {
+        IntervalsResponseDTO response = movieService.getProducerIntervals();
         return ResponseEntity.ok(response);
     }
 

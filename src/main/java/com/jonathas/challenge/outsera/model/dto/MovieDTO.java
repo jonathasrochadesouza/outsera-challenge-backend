@@ -11,14 +11,16 @@ public record MovieDTO(UUID id,
                        String producers,
                        boolean winner)
 {
+
     public static MovieDTO fromEntity(MovieEntity movie) {
         return new MovieDTO(
                 movie.getId(),
                 movie.getYearDate(),
                 movie.getTitle(),
-                movie.getStudios(),
-                movie.getProducers(),
+                movie.getStudio(),
+                movie.getProducer(),
                 movie.isWinner()
         );
     }
+
 }

@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 
 @Component
 public class LoaderCSV {
@@ -29,7 +30,8 @@ public class LoaderCSV {
                     new InputStreamReader(inputStream, StandardCharsets.UTF_8)
             );
 
-            String line = reader.readLine();
+            var line = reader.readLine();
+            var movieList = new ArrayList<MovieEntity>();
 
             while ((line = reader.readLine()) != null) {
                 String[] fields = line.split(";");
@@ -37,13 +39,15 @@ public class LoaderCSV {
                 MovieEntity movie = MovieEntity.builder()
                     .yearDate(Integer.parseInt(fields[0]))
                     .title(fields[1])
-                    .studios(fields[2])
-                    .producers(fields[3])
+                    .studio(fields[2])
+                    .producer(fields[3])
                     .winner(fields.length > 4 && "yes".equalsIgnoreCase(fields[4]))
                     .build();
 
-                movieRepository.save(movie);
+                movieList.add(movie);
             }
+
+            movieRepository.saveAll(movieList);
 
             reader.close();
 

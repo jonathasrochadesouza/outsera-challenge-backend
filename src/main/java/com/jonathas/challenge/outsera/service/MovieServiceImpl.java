@@ -1,8 +1,9 @@
 package com.jonathas.challenge.outsera.service;
 
-import com.jonathas.challenge.outsera.model.dto.AwardIntervalResponseDTO;
+import com.jonathas.challenge.outsera.model.dto.IntervalsResponseDTO;
 import com.jonathas.challenge.outsera.model.dto.MovieDTO;
 import com.jonathas.challenge.outsera.model.dto.ProducerIntervalDTO;
+import com.jonathas.challenge.outsera.model.entity.MovieEntity;
 import com.jonathas.challenge.outsera.repository.MovieRepository;
 import com.jonathas.challenge.outsera.util.ProducerParser;
 import org.springframework.stereotype.Service;
@@ -36,37 +37,14 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    public AwardIntervalResponseDTO getProducerIntervals() {
+    public IntervalsResponseDTO getProducerIntervals() {
         var winners = repository.findByWinnerTrue();
 
-        Map<String, List<Integer>> winnersByGroupProducerAndYear = winners.stream()
-                .flatMap(movie -> ProducerParser.parse(movie.getProducers())
-                        .stream()
-                        .map(producer -> new AbstractMap.SimpleEntry<>(producer, movie.getYearDate()))
-                )
-                .collect(Collectors.groupingBy(
-                        Map.Entry::getKey,
-                        Collectors.mapping(Map.Entry::getValue, Collectors.toList())
-                ));
-
-        List<ProducerIntervalDTO> intervals = winnersByGroupProducerAndYear.entrySet().stream()
-                .filter(entry -> entry.getValue().size() > 1)
-                .flatMap(entry -> {
-                    String producer = entry.getKey();
-                    List<Integer> years = entry.getValue().stream().sorted().toList();
-
-                    return IntStream.range(0, years.size() - 1)
-                            .mapToObj(i -> new ProducerIntervalDTO(
-                                    producer,
-                                    years.get(i + 1) - years.get(i),
-                                    years.get(i),
-                                    years.get(i + 1)
-                            ));
-                })
-                .toList();
+        Map<String, List<Integer>> winnersByGroupProducerAndYear = getWinnersGroupedMapByProducerKey(winners);
+        List<ProducerIntervalDTO> intervals = getWinnersIntervals(winnersByGroupProducerAndYear);
 
         if (intervals.isEmpty()) {
-            return new AwardIntervalResponseDTO(List.of(), List.of());
+            return new IntervalsResponseDTO(List.of(), List.of());
         }
 
         int minInterval = intervals.stream()
@@ -84,7 +62,37 @@ public class MovieServiceImpl implements MovieService {
         List<ProducerIntervalDTO> maxProducerIntervals = intervals.stream()
                 .filter(dto -> dto.interval() == maxInterval).toList();
 
-        return new AwardIntervalResponseDTO(minProducerIntervals, maxProducerIntervals);
+        return new IntervalsResponseDTO(minProducerIntervals, maxProducerIntervals);
+    }
+
+    private static Map<String, List<Integer>> getWinnersGroupedMapByProducerKey(List<MovieEntity> winners) {
+        return winners.stream()
+                .flatMap(movie -> ProducerParser.parse(movie.getProducer())
+                        .stream()
+                        .map(producer -> new AbstractMap.SimpleEntry<>(producer, movie.getYearDate()))
+                )
+                .collect(Collectors.groupingBy(
+                        Map.Entry::getKey,
+                        Collectors.mapping(Map.Entry::getValue, Collectors.toList())
+                ));
+    }
+
+    private static List<ProducerIntervalDTO> getWinnersIntervals(Map<String, List<Integer>> winnersByGroupProducerAndYear) {
+        return winnersByGroupProducerAndYear.entrySet().stream()
+                .filter(entry -> entry.getValue().size() > 1)
+                .flatMap(entry -> {
+                    String producer = entry.getKey();
+                    List<Integer> years = entry.getValue().stream().sorted().toList();
+
+                    return IntStream.range(0, years.size() - 1)
+                            .mapToObj(i -> new ProducerIntervalDTO(
+                                    producer,
+                                    years.get(i + 1) - years.get(i),
+                                    years.get(i),
+                                    years.get(i + 1)
+                            ));
+                })
+                .toList();
     }
 
 }

@@ -22,8 +22,8 @@ public class MovieEntity {
     private UUID id;
     private Integer yearDate;
     private String title;
-    private String studios;
-    private String producers;
+    private String studio;
+    private String producer;
     private boolean winner;
 
 }
